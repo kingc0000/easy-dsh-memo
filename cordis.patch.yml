@@ -1,0 +1,6 @@
+# easy-dsh-memo bundle patch: global conversation memory plugin for dsh.
+# Adds memo tools (memo_save, memo_read, memo_edit, memo_clear) and an
+# auto-save hook that appends summaries to ~/.dsh/memo.md after each turn.
+- insert:
+    - id: easy-dsh-memo
+      name: 'easy-dsh-memo'

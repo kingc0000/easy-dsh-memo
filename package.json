@@ -1,0 +1,21 @@
+{
+  "name": "easy-dsh-memo",
+  "version": "1.0.0",
+  "description": "Global conversation memory plugin for DeepSeek Harness — auto-extracts important info per turn into ~/.dsh/memo.md and injects it as historical context.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "^3.18.1"
+  },
+  "license": "MIT",
+  "keywords": ["dsh", "deepseek-harness", "memory", "memo", "global-memory", "plugin"]
+}
