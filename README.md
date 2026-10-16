@@ -2,7 +2,7 @@
 
 **Global conversation memory for DeepSeek Harness (DSH)**
 
-每轮对话自动提取重要信息，保存到 `$DSH_HOME/memo.md`（默认 `~/.dsh/memo.md`）作为全局记忆，让每个新对话都能继承历史上下文——同时通过精简摘要机制，避免把无关历史全量带入 LLM 上下文。
+每轮对话自动提取重要信息，保存到 `$DSH_HOME/memo.md`（默认 `~/.dsh/memo.md`）作为全局记忆，供 Agent 用 `memo_read` 按需读取历史上下文——通过精简摘要机制，避免把无关历史全量带入 LLM 上下文。
 
 ## 功能特性
 
@@ -13,6 +13,7 @@
 | 📖 **memo_read 精简模式** | 默认只返回关键约束 + 用户偏好 + 最近 5 条流水（约 3KB），可按 `section=` / `query=` 定向读取，`full=true` 才取全文 |
 | 💾 **零额外 token 开销** | 提取基于规则（标题/加粗/列表），不调用 LLM API |
 | 🔒 **原子写入** | 追加使用临时文件 + rename，防止写坏 |
+| 🚫 **不自动注入** | 无注入逻辑（原"首轮自动注入"占位实现已作为死代码移除），记忆到达模型走 `memo_read` |
 | 🧩 **可与静态分类共存** | 自动保存的流水插在 `# 🧠 Global Memory` 头部之下，文件尾部的静态章节（约束/Facts/Projects/Lessons/Preferences 等）不受影响 |
 | ⚙️ **日志落盘** | 插件日志写入 `$DSH_HOME/logs/easy-dsh-memo.log`，便于排查 |
 | 🧪 **可隔离测试** | 通过 `MEMO_FILE` 环境变量或 `memoPath` 配置指向临时文件，不影响真实记忆 |
@@ -39,8 +40,6 @@ dsh plugin add /path/to/easy-dsh-memo
   config:
     memoPath: ~/.dsh/memo.md     # 自定义记忆文件路径（默认 $DSH_HOME/memo.md）
     autoSave: true               # 每轮对话自动保存摘要（默认 true）
-    autoInject: true             # 预留开关, 当前版本注入逻辑为占位实现
-    injectAsSystem: true         # 预留: 注入方式
     logFile: ~/.dsh/logs/easy-dsh-memo.log   # 日志文件路径（默认 memo 同目录 logs/）
 ```
 
@@ -150,7 +149,8 @@ systemctl restart dsh-feishu
 
 - **自动保存是启发式的**：提取基于规则（Markdown 标题、加粗文本、列表项），不依赖 LLM，零额外 token 开销；对不包含可提取内容的消息会跳过或给出兜底摘要
 - **日志**：默认写入 memo 同目录 `logs/easy-dsh-memo.log`，可用 `logFile` 覆盖
-- **自动注入为占位实现**：`autoInject` 当前仅记录日志（"injected N bytes"）并不真正改写消息；记忆到达模型的正路是 `memo_read` 工具
+- **不自动注入**：插件不含注入逻辑。此前有一个"新会话首轮注入"占位实现（只打日志、从未真正改写消息），已于 2026-10-16 作为死代码整体移除（`autoInject` / `injectAsSystem` 配置项一并删除）；记忆到达模型的正路是 `memo_read` 工具
+- **需要首轮自动注入怎么办**：走 dsh 原生机制 `dsh-agent-instructions`（dsh-base 默认启用），它会在新会话首轮加载 `$DSH_HOME/AGENTS.md`（默认预算 65KB）；把要常驻的内容写进该文件即可，本插件不会写它
 - **记忆文件手动可编辑**：memo.md 是普通 Markdown；自动保存只动流水区，静态章节不会被覆盖
 - **测试隔离**：设置 `MEMO_FILE=/tmp/test-memo.md` 或 `memoPath` 指向临时文件后可安全实验
 
