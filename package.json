@@ -1,7 +1,7 @@
 {
   "name": "easy-dsh-memo",
   "version": "1.0.0",
-  "description": "Global conversation memory plugin for DeepSeek Harness — auto-extracts important info per turn into ~/.dsh/memo.md and injects it as historical context.",
+  "description": "Global conversation memory plugin for DeepSeek Harness — auto-extracts important info per turn into ~/.dsh/memo.md, readable on demand via memo_read with a compact digest by default.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
