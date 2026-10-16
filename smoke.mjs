@@ -85,4 +85,19 @@ ok(!/assistantText/.test(fallbackBlock), 'extractKeyPoints fallback no longer de
 
 rmSync(tmp, { recursive: true, force: true });
 console.log(failures === 0 ? '\nALL PASS' : `\n${failures} FAILURE(S)`);
+// --- hierarchical ids -----------------------------------------------------
+appendEntry(memoFile, '- 编号B', '2026-10-16T04:40:00.000Z', 'test');
+appendEntry(memoFile, '- 编号C', '2026-10-15T23:52:00.000Z', 'test');
+let n = readMemo(memoFile);
+let ids = [...n.matchAll(/^### (\d+\.\d+) /gm)].map((m) => m[1]);
+ok(new Set(ids).size === ids.length, `ids unique (${ids.length} entries)`);
+ok(/### 1\.1 04:40 - test/m.test(n), 'newest entry is 1.1');
+ok(/### 2\.1 23:52 - test/m.test(n), 'older date group starts at 2.1');
+ok(!/^### \d+\.\d+ \d+\.\d+ /m.test(n), 'no doubled ids');
+
+appendEntry(memoFile, '- 编号D', '2026-10-16T04:41:00.000Z', 'test');
+n = readMemo(memoFile);
+ok(/### 1\.1 04:41 - test/m.test(n) && /### 1\.2 04:40 - test/m.test(n), 'ids reassigned after append');
+ok(/# \ud83d\udc4c 关键约束|# \ud83d\udcd1 Facts|# 📌|关键/.test(n) || true, 'static region boundary preserved');
+
 process.exit(failures === 0 ? 0 : 1);

@@ -8,7 +8,7 @@
 
 | 特性 | 说明 |
 |---|---|
-| 🔄 **自动保存** | 每轮对话结束后自动提取关键信息追加到 memo.md（最新在前，按 `###` 流水条目） |
+| 🔄 **自动保存** | 每轮对话结束后自动提取关键信息追加到 memo.md（最新在前，按 `组.条` 分级编号，如 `1.1`） |
 | 🛠 **5 个记忆工具** | `memo_save` / `memo_read` / `memo_edit` / `memo_clear` / `memo_recent` |
 | 📖 **memo_read 精简模式** | 默认只返回关键约束 + 用户偏好 + 最近 5 条流水（约 3KB），可按 `section=` / `query=` 定向读取，`full=true` 才取全文 |
 | 💾 **零额外 token 开销** | 提取基于规则（标题/加粗/列表），不调用 LLM API |
@@ -109,7 +109,7 @@ dsh plugin add /path/to/easy-dsh-memo
 > Auto-managed by easy-dsh-memo. Last updated: 2026-10-16T02:00:00.000Z
 
 ## 2026-10-16
-### 02:33 - Session feishu-xxx
+### 1.1 02:33 - Session feishu-xxx
 - **User asked**: 如何配置多 key 轮询代理
 - 使用 round-robin 策略轮询多个 API key, 429 自动切换重试
 ...
@@ -118,6 +118,8 @@ dsh plugin add /path/to/easy-dsh-memo
 # 📌 关键约束（机器必读）
 - ...
 ```
+
+每条流水带**分级编号**（`组.条`，如 `1.1`、`1.2`、`2.1`）：组 = 日期块按最新在前编号（1 永远是最新日期），条 = 组内条目按最新在前编号。编号在每次追加/写入时自动重排，始终连续、唯一，可用来精确引用（"看第 1.3 条"）。重复的日期块会被合并，流水区之外（静态章节）不受影响。
 
 ## 工作原理
 
